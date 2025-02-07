@@ -339,3 +339,11 @@ replace numberClassificationAPI-763 with your webapp name <br/>
   
 - Endpoint (Full API URL)
 `` https://numberClassificationAPI-763.azurewebsites.net/api/classify-number?number=371 ``
+### Step 7: Test the API Endpoint
+Open the endpoint in a browser
+![image](https://github.com/user-attachments/assets/7b5996bc-9ad1-40cc-ac71-404f7c492ff1)
+
+
+![image](https://github.com/user-attachments/assets/f35b153b-820d-4a89-88a1-3353339d91ba)
+
+
