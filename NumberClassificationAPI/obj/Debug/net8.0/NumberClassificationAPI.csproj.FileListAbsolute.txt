@@ -35,3 +35,4 @@ C:\Projects\hng\API\NumberClassificationAPI\obj\Debug\net8.0\refint\NumberClassi
 C:\Projects\hng\API\NumberClassificationAPI\obj\Debug\net8.0\NumberClassificationAPI.pdb
 C:\Projects\hng\API\NumberClassificationAPI\obj\Debug\net8.0\NumberClassificationAPI.genruntimeconfig.cache
 C:\Projects\hng\API\NumberClassificationAPI\obj\Debug\net8.0\ref\NumberClassificationAPI.dll
+C:\Projects\hng\API\NumberClassificationAPI\obj\Debug\net8.0\NumberClassificationAPI.sourcelink.json

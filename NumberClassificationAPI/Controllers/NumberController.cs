@@ -12,13 +12,17 @@ public class ClassifyNumberController : ControllerBase
     [HttpGet("classify-number")]
     public async Task<IActionResult> ClassifyNumber([FromQuery] string number)
     {
-        if (!int.TryParse(number, out int num))
+        // Try parsing the number as a double to handle both integers and floating-point numbers
+        if (!double.TryParse(number, out double num))
         {
             return BadRequest(new { number, error = true });
         }
 
+        // Use the absolute value for classification and calculations
+        num = Math.Abs(num);
+
         var properties = GetNumberProperties(num);
-        int digitSum = Math.Abs(num).ToString().Sum(c => c - '0'); // Sum of absolute digit values
+        int digitSum = num.ToString().Sum(c => c - '0'); // Sum of absolute digit values
 
         string funFact = await GetFunFact(num);
 
@@ -33,7 +37,7 @@ public class ClassifyNumberController : ControllerBase
         });
     }
 
-    private bool IsPrime(int n)
+    private bool IsPrime(double n)
     {
         if (n < 2) return false;
         for (int i = 2; i * i <= n; i++)
@@ -41,16 +45,16 @@ public class ClassifyNumberController : ControllerBase
         return true;
     }
 
-    private bool IsPerfect(int n)
+    private bool IsPerfect(double n)
     {
         if (n < 1) return false;
         int sum = 1;
         for (int i = 2; i * i <= n; i++)
-            if (n % i == 0) sum += i + (i * i == n ? 0 : n / i);
+            if (n % i == 0) sum += i + (i * i == n ? 0 : (int)(n / i));
         return sum == n;
     }
 
-    private string[] GetNumberProperties(int n)
+    private string[] GetNumberProperties(double n)
     {
         var properties = new System.Collections.Generic.List<string>();
         if (IsArmstrong(n)) properties.Add("armstrong");
@@ -58,9 +62,9 @@ public class ClassifyNumberController : ControllerBase
         return properties.ToArray();
     }
 
-    private bool IsArmstrong(int n)
+    private bool IsArmstrong(double n)
     {
-        int sum = 0, temp = Math.Abs(n), digits = temp.ToString().Length;
+        int sum = 0, temp = (int)Math.Abs(n), digits = temp.ToString().Length;
         while (temp > 0)
         {
             int digit = temp % 10;
@@ -70,10 +74,10 @@ public class ClassifyNumberController : ControllerBase
         return sum == Math.Abs(n);
     }
 
-    private async Task<string> GetFunFact(int n)
+    private async Task<string> GetFunFact(double n)
     {
         using var httpClient = new HttpClient();
-        string apiUrl = $"http://numbersapi.com/{n}/math";
+        string apiUrl = $"http://numbersapi.com/{(int)n}/math"; // Use the integer part for the fun fact
         try
         {
             return await httpClient.GetStringAsync(apiUrl);
