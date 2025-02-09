@@ -11,11 +11,22 @@ This API classifies numbers based on mathematical properties and provides a fun 
 - It response in JSON Format
 
 ## TECHNOLOGY STACK
-C# with ASP.NET Core
+- Programming Languag: C# with ASP.NET Core
+- Cloud Provider: Azure
+- Infrastructure as Code: ARM Template
+- Azure Services: App Services
 
-## Deployment
+## Prerequisites
 
-Deployed on Azure App Service
+Ensure you have the following before starting:
+
+ - An Azure Account 
+
+- Azure CLI Installed 
+
+- .NET SDK Installed 
+
+- Git Installed 
 
 ## ENDPOINT
 It is  publicly accessible at: https://numberClassificationAPI-763.azurewebsites.net/api/classify-number?number=371
@@ -66,7 +77,7 @@ If using Visual Studio, open the **_NumberClassificationAPI.sln_** file.
 
 2. Modify Program.cs to Enable CORS
 
-Open Program.cs and update it with the following code to include CORS support:
+Open **Program.c**s and update it with the following code to include CORS support:
 
 ```
 var builder = WebApplication.CreateBuilder(args);
@@ -96,8 +107,8 @@ app.Run();
 
 3. Create the API Controller
 
-Locate the Controllers folder. If there is none, manually create a new folder inside your project root and name it Controllers.\
-Then create a new file named NumberController.cs inside the Controllers folder and add the code below:
+Locate the **Controllers** folder. If there is none, manually create a new folder inside your project root and name it Controllers.\
+Then create a new file named **NumberController.cs** inside the Controllers folder and add the code below:
 
 ```
 using Microsoft.AspNetCore.Mvc;
@@ -114,13 +125,17 @@ public class ClassifyNumberController : ControllerBase
     [HttpGet("classify-number")]
     public async Task<IActionResult> ClassifyNumber([FromQuery] string number)
     {
-        if (!int.TryParse(number, out int num))
+        // Try parsing the number as a double to handle both integers and floating-point numbers
+        if (!double.TryParse(number, out double num))
         {
             return BadRequest(new { number, error = true });
         }
 
+        // Use the absolute value for classification and calculations
+        num = Math.Abs(num);
+
         var properties = GetNumberProperties(num);
-        int digitSum = Math.Abs(num).ToString().Sum(c => c - '0'); // Sum of absolute digit values
+        int digitSum = num.ToString().Sum(c => c - '0'); // Sum of absolute digit values
 
         string funFact = await GetFunFact(num);
 
@@ -135,7 +150,7 @@ public class ClassifyNumberController : ControllerBase
         });
     }
 
-    private bool IsPrime(int n)
+    private bool IsPrime(double n)
     {
         if (n < 2) return false;
         for (int i = 2; i * i <= n; i++)
@@ -143,16 +158,16 @@ public class ClassifyNumberController : ControllerBase
         return true;
     }
 
-    private bool IsPerfect(int n)
+    private bool IsPerfect(double n)
     {
         if (n < 1) return false;
         int sum = 1;
         for (int i = 2; i * i <= n; i++)
-            if (n % i == 0) sum += i + (i * i == n ? 0 : n / i);
+            if (n % i == 0) sum += i + (i * i == n ? 0 : (int)(n / i));
         return sum == n;
     }
 
-    private string[] GetNumberProperties(int n)
+    private string[] GetNumberProperties(double n)
     {
         var properties = new System.Collections.Generic.List<string>();
         if (IsArmstrong(n)) properties.Add("armstrong");
@@ -160,9 +175,9 @@ public class ClassifyNumberController : ControllerBase
         return properties.ToArray();
     }
 
-    private bool IsArmstrong(int n)
+    private bool IsArmstrong(double n)
     {
-        int sum = 0, temp = Math.Abs(n), digits = temp.ToString().Length;
+        int sum = 0, temp = (int)Math.Abs(n), digits = temp.ToString().Length;
         while (temp > 0)
         {
             int digit = temp % 10;
@@ -172,10 +187,10 @@ public class ClassifyNumberController : ControllerBase
         return sum == Math.Abs(n);
     }
 
-    private async Task<string> GetFunFact(int n)
+    private async Task<string> GetFunFact(double n)
     {
         using var httpClient = new HttpClient();
-        string apiUrl = $"http://numbersapi.com/{n}/math";
+        string apiUrl = $"http://numbersapi.com/{(int)n}/math"; // Use the integer part for the fun fact
         try
         {
             return await httpClient.GetStringAsync(apiUrl);
@@ -205,7 +220,7 @@ Response:
 
 ![image](https://github.com/user-attachments/assets/86f319a0-b0ca-49a2-89bf-a39cfc7aa174)
 
-check for error handling. Try number=xyz
+check for error handling. Try number=3xyz
 
 Expected Response:
 ![image](https://github.com/user-attachments/assets/5b311cf3-b545-46ce-a729-66e8343353fe)
@@ -229,20 +244,6 @@ git push -u origin main
 ### Sep 6: Deploy to a Public Endpoint
 
 #### Deploy on Azure App Services
-
-**Prerequisites**
-
-Ensure you have before starting:
-
- - An Azure Account 
-
-- Azure CLI Installed 
-
-- .NET SDK Installed (
-
-- GitHub Repository with your API code
-
-- Git Installed (Download)
 
 1. Login to Azure
 
@@ -292,7 +293,7 @@ Name: AZURE_WEBAPP_PUBLISH_PROFILE
 Value: Get it by running:
 
 ``az webapp deployment list-publishing-profiles --name numberClassificationAPI-763 --resource-group webappRG --xml``
-replace numberClassificationAPI-763 with your webapp name
+Replace numberClassificationAPI-763 with your webapp name
 Copy and paste the entire XML output into GitHub.
 
 7. Add GitHub Actions Workflow
